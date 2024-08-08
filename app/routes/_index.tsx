@@ -1,4 +1,7 @@
 import type { MetaFunction } from "@remix-run/node";
+import { Form } from "@remix-run/react";
+
+import {createSupabaseServerClient} from '../utils/supabase.server'
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,42 +10,22 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+
 export default function Index() {
+  async function handleSubmit() {
+    console.log('submit');
+  }
+
   return (
     <div className="font-sans p-4">
-      <h1 className="text-3xl">Welcome to Remix</h1>
-      <ul className="list-disc mt-4 pl-6 space-y-2">
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/quickstart"
-            rel="noreferrer"
+      <h1 className="text-3xl">Time slot bets with the boys</h1>
+      <Form
+            // action="destroy"
+            method="post"
+            onSubmit={() => {handleSubmit()}}
           >
-            5m Quick Start
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/start/tutorial"
-            rel="noreferrer"
-          >
-            30m Tutorial
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/docs"
-            rel="noreferrer"
-          >
-            Remix Docs
-          </a>
-        </li>
-      </ul>
+            <button className="btn btn-primary" type="submit">Ny time slot bet</button>
+          </Form>
     </div>
   );
 }
