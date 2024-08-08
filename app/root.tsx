@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   json,
   Links,
@@ -6,15 +7,15 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useRevalidator,
   useRouteError,
 } from "@remix-run/react";
 
 import "./tailwind.css";
 import { createSupabaseServerClient } from "./utils/supabase.server";
 import { LoaderFunctionArgs } from "@remix-run/node";
-import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/auth-helpers-remix";
+
+import { createBrowserClient,  } from "@supabase/auth-helpers-remix";
+
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const env = {
@@ -54,26 +55,10 @@ export function ErrorBoundary() {
 
 export default function App() {
   const { env, session } = useLoaderData<typeof loader>();
-  const { revalidate } = useRevalidator();
 
   const [supabase] = useState(() =>
     createBrowserClient(env.SUPABASE_URL, env.SUPABASE_PUBLIC_KEY)
   );
-
-  const serverAccessToken = session?.access_token;
-
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.access_token !== serverAccessToken) {
-        revalidate();
-      }
-    });
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase.auth, serverAccessToken, revalidate]);
 
   return (
     <html lang="en">
