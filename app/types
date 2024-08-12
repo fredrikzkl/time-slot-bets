@@ -4,3 +4,16 @@ export type OutletContext = {
     supabase: SupabaseClient;
     session: Session
 }
+
+export type TSBGame = {
+    url : string,
+    createdAt : string,
+    hostId : string,
+    status : string,
+    gambler : Gambler[],
+}
+
+export type Gambler = {
+    user_id : string;
+    name : string;
+}
