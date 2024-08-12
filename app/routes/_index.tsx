@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Form, json, redirect, useNavigate, useOutletContext } from "@remix-run/react";
+import { Form, json, redirect, useNavigation } from "@remix-run/react";
 
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,6 +36,9 @@ export async function action({ request }: ActionFunctionArgs) {
 
 export default function Index() {
   const [userId, setUserId] = useState('')
+  const navigation = useNavigation();
+
+  const isSubmitting = navigation.formAction === "/?index";
 
   useEffect(() => {
     setUserId(useUserId() || '');
@@ -77,14 +80,20 @@ export default function Index() {
               aria-label="join"
               name="_action"
               type="submit"
+              disabled={isSubmitting}
             >
+              {isSubmitting && (
+                <span className="loading loading-spinner"></span>
+              )}
               Create
             </button>
           </Form>
           <div className="modal-action">
             <form method="dialog">
               {/* if there is a button in form, it will close the modal */}
-              <button className="btn">Close</button>
+              <button disabled={isSubmitting} className="btn">
+                Close
+              </button>
             </form>
           </div>
         </div>
