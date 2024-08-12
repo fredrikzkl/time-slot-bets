@@ -35,14 +35,11 @@ export async function action({ request }: ActionFunctionArgs) {
 
 
 export default function Index() {
-  const [userId, setUserId] = useState('')
+  const userId = useUserId();
+  
   const navigation = useNavigation();
 
   const isSubmitting = navigation.formAction === "/?index";
-
-  useEffect(() => {
-    setUserId(useUserId() || '');
-  }, []);
 
   function openModal() {
     let m = document.getElementById('new-game-modal') as HTMLDialogElement;

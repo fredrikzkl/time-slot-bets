@@ -6,6 +6,7 @@ export type OutletContext = {
 }
 
 export type TSBGame = {
+    game_name : string,
     url : string,
     createdAt : string,
     hostId : string,
