@@ -6,13 +6,16 @@ import GamblerTable from "../components/GamblerTable";
 
 import db from '../utils/db';
 import GameLink from "../components/GameLink";
-import useUserId from "../utils/useUserId";
-import { formatDate } from "../utils/useFormatDate";
+import useUserId from "../hooks/useUserId";
+import { formatDate } from "../hooks/useFormatDate";
 
 import { useEffect, useState } from "react";
 
-import type { Game } from "~/types";
+import { TSBGame } from "../types";
 import NewGamblerForm from "../components/NewGamblerForm";
+import JoinButton from "../components/JoinButton";
+import { GetGameNoBets, GetGameResults } from "../services.server/GameService";
+import StartRoundButton from "../components/StartRoundButton";
 
 
 export const meta: MetaFunction = () => {
@@ -24,21 +27,14 @@ export const meta: MetaFunction = () => {
 export async function loader({
   params,
 }: LoaderFunctionArgs) {
-  const { data: gameData } = await db.from('game').select(`
-      game_name,
-      id,
-      game_url,
-      status,
-      host_id,
-      created_at,
-      gambler ( name, user_id )
-    `).eq('game_url', params.url).single();
+  const{ data, error } = await GetGameNoBets(params.game_url);
+  if (error)
+    return json(error.message, { status: 500 });
 
-  if (!gameData) {
+  if (!data) 
     return json("Game not found", { status: 404 });
-  }
 
-  return json(gameData);
+  return json(data);
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -49,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function Game() {
-  let data = useLoaderData<typeof loader>() as Game;
+  let data = useLoaderData<typeof loader>() as TSBGame;
   const userId = useUserId();
 
   const [isNewPlayer, setIsNewPlayer] = useState(true);
@@ -68,29 +64,27 @@ export default function Game() {
     <div className="container mx-auto p-12 justify-center">
       <div className="mb-4">
         <span className="text-sm">{formatDate(data.created_at)}</span>
-        <h1 className="text-3xl"> {data.game_name}
         {isHost && (
-          <div className="badge badge-success ml-6">You are host</div>
-        )}
-
+            <div className="badge badge-accent badge-outline ml-6">You are the host</div>
+          )}
+        <h1 className="text-3xl"> {data.game_name}
         </h1>
       </div>
 
       <GameLink />
 
-      {isNewPlayer ? (
-        <>
-          <NewGamblerForm gameId={data.id} userId={userId} />
-        </>
-      ) : (
-        <>
-          <GamblerTable gamblers={data.gambler} />
-          {isHost && (
-            <button className="btn btn-primary">Start Round</button>
-          )}
-        </>
+      {isNewPlayer && (
+        <div className="mt-8">
+          <JoinButton gameUrl={data.game_url} />
+        </div>
+      )}
+
+      <GamblerTable gamblers={data.gambler} userId={userId} />
+      {isHost && (
+        <StartRoundButton/>
       )}
 
     </div>
   );
 }
+

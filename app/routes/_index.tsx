@@ -3,10 +3,9 @@ import { Form, json, redirect, useNavigation } from "@remix-run/react";
 
 import { v4 as uuidv4 } from 'uuid';
 
-import useUserId from "../utils/useUserId.js";
+import useUserId from "../hooks/useUserId.js";
 
 import db from "../utils/db.js";
-import { useEffect, useState } from "react";
 
 export const meta: MetaFunction = () => {
   return [

@@ -11,10 +11,30 @@ export type TSBGame = {
     createdAt : string,
     hostId : string,
     status : string,
-    gambler : Gambler[],
+    gambler : Gambler[]
+    timeSlots : TimeSlot[]
 }
 
 export type Gambler = {
     user_id : string;
     name : string;
+    bet : string;
 }
+
+export type JoinGameRequest = {
+    game_url: string;
+    user_id: string;
+    name : string;
+    minutes : string;
+    seconds: string;
+}
+
+// All numbers are represented in seconds
+export type TimeSlot = {
+    user_id: string;
+    name: string;
+    betInSeconds: number;
+    startTime: number;
+    endTime: number;
+}
+

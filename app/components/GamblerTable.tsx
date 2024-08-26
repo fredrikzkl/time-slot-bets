@@ -1,6 +1,6 @@
 import { Gambler } from '../types'; // Assuming the 'Gambler' type is defined in a separate file called 'types.ts'
 
-export default function GamblerTable({ gamblers }: { gamblers: Gambler[] }) {
+export default function GamblerTable({ gamblers, userId }: { gamblers: Gambler[], userId? :string }) {
     console.log(gamblers);
     if (!gamblers || !gamblers.length) {
         return <p className='p-8'>No gamblers yet</p>
@@ -18,9 +18,9 @@ export default function GamblerTable({ gamblers }: { gamblers: Gambler[] }) {
                 {
                     // body
                     gamblers.map((gambler) => (
-                        <tr key={gambler.id}>
+                        <tr key={gambler.user_id} className={`${userId == gambler.user_id && 'bg-base-200'}`}>
                             <td>{gambler.name}</td>
-                            <td>{gambler.time}</td>
+                            <td>???</td>
                         </tr>
                     ))
                 }
