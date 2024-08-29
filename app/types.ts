@@ -7,9 +7,10 @@ export type OutletContext = {
 
 export type TSBGame = {
     game_name : string,
-    url : string,
-    createdAt : string,
-    hostId : string,
+    id : string,
+    game_url : string,
+    created_at : string,
+    host_id : string,
     status : string,
     gambler : Gambler[]
     timeSlots : TimeSlot[]

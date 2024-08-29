@@ -1,6 +1,6 @@
 
 import { json } from '@remix-run/react';
-import { JoinGameRequest, TSBGame } from '../types';
+import { JoinGameRequest, TSBGame } from '../types.ts';
 import db from '../utils/db';
 import { PostgrestError } from '@supabase/supabase-js';
 import { GenerateTimeslots } from './TimeslotsGenerator';

@@ -1,8 +1,11 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { NavLink, useLoaderData } from "@remix-run/react";
 import { TSBGame, TimeSlot } from "../types";
-import useUserId from "../hooks/useUserId";
-import { GetGameNoBets, GetGameWithBets } from "../services.server/GameService";
+import { GetGameWithBets } from "../services.server/GameService";
+
+import { ClockIcon, HomeIcon } from '../components/Icons';
+
+import { formatDate } from "../hooks/useFormatDate";
 
 import { GenerateTimeslots, FormatSecondToTime } from '../services.server/TimeslotsGenerator';
 
@@ -16,13 +19,13 @@ export async function loader({
   if (!data) {
     return json(`Game '${params.game_url}' not found`, { status: 404 });
   }
-  
+
   let game: TSBGame = {
     game_name: data.game_name,
     id: data.id,
-    game_url: data.game_url,
     status: data.status,
     host_id: data.host_id,
+    game_url: data.game_url,
     created_at: data.created_at,
     gambler: data.gambler || [],
     timeSlots: []
@@ -34,24 +37,38 @@ export async function loader({
   return json(game);
 }
 
+function getBetDuration(startTime: number, endTime: number) {
+  return endTime - startTime;
+}
+
 export default function GameJoin() {
   let game = useLoaderData<typeof loader>() as TSBGame;
 
-  const timeSlotComponent = (ts: TimeSlot) => {
+  const timeSlotComponent = (ts: TimeSlot, isFirst?: boolean, isLast?: boolean) => {
+    var betDuration = getBetDuration(ts.startTime, ts.endTime);
     return (
       <li key={ts.user_id}>
+        {!isFirst &&
+          <hr className="bg-primary" />
+        }
+
         <div className="timeline-start">
-        {ts.name}
+          <div className="tooltip" data-tip={`Bet: ${FormatSecondToTime(ts.betInSeconds)}`}>
+            <button className="btn btn-ghost">{ts.name}</button>
+          </div>
         </div>
         <div className="timeline-middle">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-          </svg>
+          <ClockIcon />
         </div>
         <div className="timeline-end timeline-box">
-          {FormatSecondToTime(ts.startTime)} - {FormatSecondToTime(ts.endTime)} 
+          <div className="tooltip" data-tip={`Duration: ${FormatSecondToTime(betDuration)}`}>
+            {FormatSecondToTime(ts.startTime)} - {FormatSecondToTime(ts.endTime)}
+          </div>
         </div>
-        <hr />
+
+        {!isLast &&
+          <hr className="bg-primary" />
+        }
       </li>
     )
   }
@@ -59,14 +76,45 @@ export default function GameJoin() {
   var timeSlots = game.timeSlots || [];
 
   return (
-    <div className="min-h-screen">
-      <h1 className="text-5xl font-bold">{game.game_name}</h1>
-    <div>
-      <ul className="timeline timeline-vertical">
-        {
-          game.timeSlots.map((ts: any) => (timeSlotComponent(ts)))
-        }
-      </ul>
+    <div className="container text-center">
+      <div className="mt-12 mb-12">
+        <h1 className="text-5xl text-center font-bold ">{game.game_name}</h1>
+        <p className="mt-2">{formatDate(new Date(game.created_at))}</p>
+      </div>
+
+      <div>
+        <ul className="timeline timeline-vertical">
+          {
+            game.timeSlots.map((ts: any, index: number) => (
+              timeSlotComponent(ts, index === 0, index === timeSlots.length - 1))
+            )
+          }
+        </ul>
+      </div>
+
+      <div className="stats shadow mt-8">
+        <div className="stat text-primary">
+          <div className="stat-title">Players</div>
+          <div className="stat-value">{game.gambler.length}</div>
+        </div>
+        <div className="stat text-secondary">
+          <div className="stat-title">Collisions</div>
+          <div className="stat-value">{game.gambler.length}</div>
+        </div>
+        <div className="stat text-accent">
+          <div className="stat-title">Closest bet</div>
+          <div className="stat-value">{game.gambler.length}</div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <NavLink
+          to="/"
+          className={`btn btn-outline`}
+        >
+          <HomeIcon />
+          Home
+        </NavLink>
       </div>
     </div>
   )

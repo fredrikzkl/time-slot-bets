@@ -6,11 +6,12 @@ export default {
     extend: {},
     container: {
       center: true,
+      padding: '2rem',
     },
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: ["sunset"],
+    themes: ["dim"],
   },
   
 } satisfies Config;

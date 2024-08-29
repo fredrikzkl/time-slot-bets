@@ -7,15 +7,15 @@ import GamblerTable from "../components/GamblerTable";
 import db from '../utils/db';
 import GameLink from "../components/GameLink";
 import useUserId from "../hooks/useUserId";
-import { formatDate } from "../hooks/useFormatDate";
 
 import { useEffect, useState } from "react";
 
 import { TSBGame } from "../types";
-import NewGamblerForm from "../components/NewGamblerForm";
+
 import JoinButton from "../components/JoinButton";
-import { GetGameNoBets, GetGameResults } from "../services.server/GameService";
+import { GetGameNoBets } from "../services.server/GameService";
 import StartRoundButton from "../components/StartRoundButton";
+import GameBody from "../components/GameBody";
 
 
 export const meta: MetaFunction = () => {
@@ -27,11 +27,11 @@ export const meta: MetaFunction = () => {
 export async function loader({
   params,
 }: LoaderFunctionArgs) {
-  const{ data, error } = await GetGameNoBets(params.game_url);
+  const { data, error } = await GetGameNoBets(params.game_url);
   if (error)
     return json(error.message, { status: 500 });
 
-  if (!data) 
+  if (!data)
     return json("Game not found", { status: 404 });
 
   return json(data);
@@ -61,16 +61,11 @@ export default function Game() {
   }, [data, userId]);
 
   return (
-    <div className="container mx-auto p-12 justify-center">
-      <div className="mb-4">
-        <span className="text-sm">{formatDate(data.created_at)}</span>
-        {isHost && (
-            <div className="badge badge-accent badge-outline ml-6">You are the host</div>
-          )}
-        <h1 className="text-3xl"> {data.game_name}
-        </h1>
-      </div>
-
+    <GameBody
+      name={data.game_name}
+      createdAt={data.created_at}
+      isHost
+    >
       <GameLink />
 
       {isNewPlayer && (
@@ -81,10 +76,10 @@ export default function Game() {
 
       <GamblerTable gamblers={data.gambler} userId={userId} />
       {isHost && (
-        <StartRoundButton/>
+        <StartRoundButton gameUrl={data.game_url}/>
       )}
 
-    </div>
+    </GameBody>
   );
 }
 

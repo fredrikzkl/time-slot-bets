@@ -1,12 +1,18 @@
+import { useNavigate } from "@remix-run/react";
 
 const modalName = "start-game-modal";
 
-export default function StartRoundButton() {
+export default function StartRoundButton({ gameUrl }: { gameUrl: string }) {
+    const navigate = useNavigate();
 
     const handleClick = () => {
         var modal = document.getElementById(modalName) as HTMLDialogElement;
         if (modal)
             modal.showModal();
+    }
+
+    const onStartGameClick =() => {
+        navigate(`/game/result/${gameUrl}`);
     }
 
     return (
@@ -18,7 +24,7 @@ export default function StartRoundButton() {
                     <div className="modal-action">
                         <form method="dialog">
                             {/* if there is a button in form, it will close the modal */}
-                            <button className="btn btn-primary">Let's go</button>
+                            <button className="btn btn-primary" onClick={onStartGameClick}>Let's go</button>
                             <button className="btn btn-neutral ml-6">Close</button>
                         </form>
                     </div>

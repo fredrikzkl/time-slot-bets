@@ -1,7 +1,7 @@
 import useUserId from "../hooks/useUserId";
 import { Form, json, redirect, useLoaderData, useActionData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { TSBGame , JoinGameRequest} from "../types";
+import { TSBGame , JoinGameRequest} from "../types.ts";
 import { JoinGame, GetGameId } from "../services.server/GameService";
 import ErrorBanner from "../components/ErrorBanner";
 

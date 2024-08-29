@@ -1,6 +1,7 @@
 import { TSBGame, Gambler, TimeSlot } from '~/types'; 
 
-const INTERVAL_BASE_S = 5 * 60;
+// 5 minutes
+const INTERVAL_BASE_S = 5 * 60; // 300
 
 export function GenerateTimeslots(game : TSBGame) : TSBGame {
     let timeSlots: TimeSlot[] = [];
@@ -27,18 +28,26 @@ export function GenerateTimeslots(game : TSBGame) : TSBGame {
         let next = timeSlots[i + 1];
 
         if (previous && TimeOverlaps(current, previous)) 
-            current.startTime = DetermineNewEndpoint(current, previous); 
+            current.startTime = DetermineNewEndpoint(current, previous) + 1; 
         else 
             current.startTime = Math.max(current.betInSeconds - INTERVAL_BASE_S, 0);
 
         if (next && TimeOverlaps(current, next)) 
             current.endTime = DetermineNewEndpoint(current, next);
         else 
-            current.endTime = current.betInSeconds + INTERVAL_BASE_S - 1;
+            current.endTime = current.betInSeconds + INTERVAL_BASE_S ;
     }
 
     game.timeSlots = timeSlots;
     return game;
+}
+
+function TimeOverlaps (current: TimeSlot, target: TimeSlot) {
+    return Math.abs(current.betInSeconds - target.betInSeconds) < INTERVAL_BASE_S * 2;
+}
+
+function DetermineNewEndpoint (current: TimeSlot, target: TimeSlot) {
+    return Math.floor((current.betInSeconds + target.betInSeconds) / 2);
 }
 
 export function FormatSecondToTime (seconds: number) {
@@ -59,10 +68,7 @@ export function FormatSecondToTime (seconds: number) {
     return mString + ':' + sString;
 }
 
-function TimeOverlaps (current: TimeSlot, target: TimeSlot) {
-    return Math.abs(current.betInSeconds - target.betInSeconds) < INTERVAL_BASE_S;
-}
+// 310
+// 620
 
-function DetermineNewEndpoint (current: TimeSlot, target: TimeSlot) {
-    return (current.betInSeconds + target.betInSeconds) / 2;
-}
+// 300
