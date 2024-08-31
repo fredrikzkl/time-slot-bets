@@ -1,10 +1,11 @@
-import { TSBGame, Gambler, TimeSlot } from '~/types'; 
+import { TSBGame, Gambler, TimeSlot, GameStatistics, GetEmptyStatistics } from '../types'; 
 
 // 5 minutes
 const INTERVAL_BASE_S = 5 * 60; // 300
 
 export function GenerateTimeslots(game : TSBGame) : TSBGame {
     let timeSlots: TimeSlot[] = [];
+    game.statistics = GetEmptyStatistics();
 
     game.gambler.forEach((gambler : Gambler) => {
         var m = parseInt(gambler.bet.split(':')[0]);
@@ -32,13 +33,19 @@ export function GenerateTimeslots(game : TSBGame) : TSBGame {
         else 
             current.startTime = Math.max(current.betInSeconds - INTERVAL_BASE_S, 0);
 
-        if (next && TimeOverlaps(current, next)) 
+        if (next && TimeOverlaps(current, next)) {
             current.endTime = DetermineNewEndpoint(current, next);
+            game.statistics.collisions += 1;
+        }
         else 
             current.endTime = current.betInSeconds + INTERVAL_BASE_S ;
     }
 
     game.timeSlots = timeSlots;
+
+    game.statistics.closestBet = GetClosestBet(timeSlots);
+    game.statistics.shortestDuration = GetShortestDuration(timeSlots);
+
     return game;
 }
 
@@ -68,7 +75,48 @@ export function FormatSecondToTime (seconds: number) {
     return mString + ':' + sString;
 }
 
-// 310
-// 620
+function GetClosestBet(timeSlots: TimeSlot[]) {
+    let closestBet = {
+        player1: '',
+        player2: '',
+        differenceSeconds: 99999999
+    };
 
-// 300
+    for (let i = 0; i < timeSlots.length; i++) {
+        let current = timeSlots[i];
+        let next = timeSlots[i + 1];
+
+        if (next) {
+            let difference = Math.abs(current.betInSeconds - next.betInSeconds);
+
+            if (difference < closestBet.differenceSeconds) {
+                closestBet.player1 = current.name;
+                closestBet.player2 = next.name;
+                closestBet.differenceSeconds = difference;
+            }
+        }
+    }
+
+    return closestBet;
+}
+
+function GetShortestDuration(timeSlots: TimeSlot[]) {
+    let shortestDuration = {
+        player: '',
+        durationSeconds: 99999999
+    };
+
+    for (let i = 0; i < timeSlots.length; i++) {
+        let current = timeSlots[i];
+        let duration = current.endTime - current.startTime;
+
+        if (duration < shortestDuration.durationSeconds) {
+            shortestDuration.player = current.name;
+            shortestDuration.durationSeconds = duration;
+        }
+    }
+
+    return shortestDuration;
+}
+
+

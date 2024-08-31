@@ -12,8 +12,9 @@ export type TSBGame = {
     created_at : string,
     host_id : string,
     status : string,
-    gambler : Gambler[]
-    timeSlots : TimeSlot[]
+    gambler : Gambler[],
+    timeSlots : TimeSlot[],
+    statistics : GameStatistics
 }
 
 export type Gambler = {
@@ -37,5 +38,33 @@ export type TimeSlot = {
     betInSeconds: number;
     startTime: number;
     endTime: number;
+}
+
+export type GameStatistics = {
+    collisions : number,
+    closestBet : {
+        player1 : string,
+        player2 : string,
+        differenceSeconds : number
+    }
+    shortestDuration : {
+        player : string,
+        durationSeconds : number
+    }
+}
+
+export function GetEmptyStatistics(): GameStatistics {
+    return {
+        collisions: 0,
+        closestBet: {
+            player1: '',
+            player2: '',
+            differenceSeconds: 0
+        },
+        shortestDuration: {
+            player: '',
+            durationSeconds: 0
+        },
+    }
 }
 

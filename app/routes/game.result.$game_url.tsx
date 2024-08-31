@@ -1,6 +1,6 @@
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { NavLink, useLoaderData } from "@remix-run/react";
-import { TSBGame, TimeSlot } from "../types";
+import { GetEmptyStatistics, TSBGame, TimeSlot } from "../types";
 import { GetGameWithBets } from "../services.server/GameService";
 
 import { ClockIcon, HomeIcon } from '../components/Icons';
@@ -8,6 +8,8 @@ import { ClockIcon, HomeIcon } from '../components/Icons';
 import { formatDate } from "../hooks/useFormatDate";
 
 import { GenerateTimeslots, FormatSecondToTime } from '../services.server/TimeslotsGenerator';
+import StatisticsComponent from "../components/Statistics";
+import GameBody from "../components/GameBody";
 
 export async function loader({
   params,
@@ -28,6 +30,7 @@ export async function loader({
     game_url: data.game_url,
     created_at: data.created_at,
     gambler: data.gambler || [],
+    statistics : GetEmptyStatistics(),
     timeSlots: []
   };
 
@@ -76,12 +79,10 @@ export default function GameJoin() {
   var timeSlots = game.timeSlots || [];
 
   return (
-    <div className="container text-center">
-      <div className="mt-12 mb-12">
-        <h1 className="text-5xl text-center font-bold ">{game.game_name}</h1>
-        <p className="mt-2">{formatDate(new Date(game.created_at))}</p>
-      </div>
-
+    <GameBody 
+      name={game.game_name}
+      createdAt={game.created_at}
+    >
       <div>
         <ul className="timeline timeline-vertical">
           {
@@ -92,20 +93,13 @@ export default function GameJoin() {
         </ul>
       </div>
 
-      <div className="stats shadow mt-8">
-        <div className="stat text-primary">
-          <div className="stat-title">Players</div>
-          <div className="stat-value">{game.gambler.length}</div>
-        </div>
-        <div className="stat text-secondary">
-          <div className="stat-title">Collisions</div>
-          <div className="stat-value">{game.gambler.length}</div>
-        </div>
-        <div className="stat text-accent">
-          <div className="stat-title">Closest bet</div>
-          <div className="stat-value">{game.gambler.length}</div>
-        </div>
-      </div>
+      {game.statistics && (
+        <StatisticsComponent
+          playerCount={game.gambler.length}
+          statistics={game.statistics}
+        />
+      )}
+
 
       <div className="mt-8">
         <NavLink
@@ -116,6 +110,6 @@ export default function GameJoin() {
           Home
         </NavLink>
       </div>
-    </div>
+    </GameBody>
   )
 } 
